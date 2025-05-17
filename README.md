@@ -1,2 +1,2 @@
 # MedVault
-Stores, manages, and share your medical records anytime, anywhere.
+MedVault is a secure, user-friendly platform for storing, managing, and sharing medical records digitally. It allows users to upload prescriptions, lab reports, and other health documents, access them anytime, and share with doctors when needed—all while ensuring data privacy and encryption.
