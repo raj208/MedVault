@@ -1,6 +1,11 @@
-<h2>Welcome, {{ request.user.username }}</h2>
+<h2>Welcomee, {{ request.user.username }}</h2>
 <h3>Your Public Key:</h3>
 <p><strong>Public Key:</strong> {{ user.public_key }}</p>
+
+
+<p>
+  profile details <a href="{% url 'patient_profile' %}">Go to Patient Profile</a>
+</p>
 
 
 

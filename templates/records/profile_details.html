@@ -1,0 +1,21 @@
+{% if request.user.is_authenticated %}
+  <h2>Patient Details</h2>
+  <p><strong>Name:</strong> {{ request.user.patient.first_name }} {{ request.user.patient.middle_name }} {{ request.user.patient.last_name }}</p>
+  <p><strong>Age:</strong> {{ request.user.patient.age }}</p>
+  <p><strong>Gender:</strong> {{ request.user.patient.get_gender_display }}</p>
+  <p><strong>Contact:</strong> {{ request.user.patient.contact_number }}</p>
+  <p><strong>Email:</strong> {{ request.user.patient.email }}</p>
+  <p><strong>Address:</strong> {{ request.user.patient.address }}</p>
+  <p><strong>Emergency Contact:</strong> {{ request.user.patient.emergency_contact_name }} ({{ request.user.patient.emergency_contact_number }})</p>
+  <p><strong>Blood Group:</strong> {{ request.user.patient.blood_group }}</p>
+  <p><strong>Allergies:</strong> {{ request.user.patient.allergies }}</p>
+  <p><strong>Ongoing Medications:</strong> {{ request.user.patient.ongoing_medications }}</p>
+{% endif %}
+  <p><strong>Medical History:</strong> {{ request.user.patient.medical_history }}</p>
+  <p><strong>Height:</strong> {{ request.user.patient.height }} cm</p>
+  <p><strong>Weight:</strong> {{ request.user.patient.weight }} kg</p>
+  <p><strong>Blood Pressure:</strong> {{ request.user.patient.blood_pressure }}</p>
+  <p><strong>Heart Rate:</strong> {{ request.user.patient.heart_rate }}</p>
+  <p><strong>Respiratory Rate:</strong> {{ request.user.patient.respiratory_rate }}</p>
+  <p><strong>Saturation:</strong> {{ request.user.patient.saturation }}</p>
+  <p><strong>Temperature:</strong> {{ request.user.patient.temperature }} °C</p>

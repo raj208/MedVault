@@ -1,6 +1,29 @@
-<h2>Register</h2>
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
+  
+  <div id="patient-form" style="display:none;">
+    {{ patient_form.as_p }}
+  </div>
+
+  <div id="past-surgeries-form" style="display:none;">
+    {{ past_Surgery_form.as_p }}
+  </div>
+  
   <button type="submit">Register</button>
 </form>
+
+<script>
+  const roleField = document.querySelector('[name="role"]');
+  const patientFormDiv = document.getElementById('patient-form');
+  const pastSurgeriesDiv = document.getElementById('past-surgeries-form');
+
+  function togglePatientFields() {
+    const show = roleField.value === 'patient';
+    patientFormDiv.style.display = show ? 'block' : 'none';
+    pastSurgeriesDiv.style.display = show ? 'block' : 'none';
+  }
+
+  roleField.addEventListener('change', togglePatientFields);
+  window.addEventListener('load', togglePatientFields);  // Run on page load
+</script>

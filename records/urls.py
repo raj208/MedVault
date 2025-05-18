@@ -19,6 +19,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('upload/', views.upload_document, name='upload_document'),
     path('delete/<int:doc_id>/', views.delete_document, name='delete_document'),
+    path('patient/profile/', views.patient_profile, name='patient_profile'),
 
 ]
 

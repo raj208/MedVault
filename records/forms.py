@@ -30,3 +30,28 @@ class RegistrationForm(UserCreationForm):
     class Meta:
         model = get_user_model()
         fields = ('username', 'password1', 'password2', 'role', 'aadhar_number', 'date_of_birth')
+
+
+from .models import Patient, PastSurgery
+
+class PatientForm(forms.ModelForm):
+    class Meta:
+        model = Patient
+        fields = [
+            'first_name', 'middle_name', 'last_name' ,'age', 'gender', 'contact_number', 'email',
+            'address', 'emergency_contact_name', 'emergency_contact_number',
+            'blood_group', 'allergies', 'ongoing_medications'
+        ]
+        widgets = {
+            'address': forms.Textarea(attrs={'rows': 2}),
+            'allergies': forms.Textarea(attrs={'rows': 2}),
+            'ongoing_medications': forms.Textarea(attrs={'rows': 2}),
+        }
+
+class PastSurgeryForm(forms.ModelForm):
+    class Meta:
+        model = PastSurgery
+        fields = ['surgery_name', 'year', 'notes']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 2}),
+        }

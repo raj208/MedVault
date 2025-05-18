@@ -13,7 +13,6 @@ from django.urls import reverse
 from .forms import RegistrationForm
 
 
-
 def home(request):
     return render(request, 'records/home.html')
 
@@ -140,18 +139,59 @@ from .utils import generate_public_key  # assuming this exists
 from django.contrib import messages
 User = get_user_model()
 
+# def register(request):
+#     if request.method == 'POST':
+#         form = RegistrationForm(request.POST)
+#         if form.is_valid():
+#             role = form.cleaned_data['role']
+#             aadhar = form.cleaned_data.get('aadhar_number')
+#             date_of_birth = form.cleaned_data.get('date_of_birth')
+
+#             # Ensure required fields for patient
+#             if role == 'patient' and (not aadhar or not date_of_birth):
+#                 form.add_error(None, "Aadhar number and Date of Birth are required for patients.")
+#                 return render(request, 'records/register.html', {'form': form})
+
+#             user = form.save(commit=False)
+#             user.role = role
+
+#             if role == 'patient':
+#                 user.aadhar_number = aadhar
+#                 user.date_of_birth = date_of_birth
+#                 user.public_key = generate_public_key(aadhar, date_of_birth)
+
+#             user.save()
+
+#             # Create associated profiles
+#             UserProfile.objects.create(user=user, role=role)
+
+#             if role == 'patient':
+#                 PatientProfile.objects.create(user=user, aadhar_number=aadhar, date_of_birth=date_of_birth)
+
+#             messages.success(request, "Registration successful. Please log in.")
+#             return redirect('login')
+#     else:
+#         form = RegistrationForm()
+
+#     return render(request, 'records/register.html', {'form': form})
+
+from .forms import RegistrationForm, PatientForm, PastSurgeryForm
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
-        if form.is_valid():
+        patient_form = PatientForm(request.POST) if request.POST.get('role') == 'patient' else None
+        past_Surgery_form = PastSurgeryForm(request.POST) if request.POST.get('role') == 'patient' else None
+
+        if form.is_valid() and (not patient_form or patient_form.is_valid()):
             role = form.cleaned_data['role']
             aadhar = form.cleaned_data.get('aadhar_number')
             date_of_birth = form.cleaned_data.get('date_of_birth')
 
-            # Ensure required fields for patient
+            # Required fields check
             if role == 'patient' and (not aadhar or not date_of_birth):
                 form.add_error(None, "Aadhar number and Date of Birth are required for patients.")
-                return render(request, 'records/register.html', {'form': form})
+                return render(request, 'records/register.html', {'form': form, 'patient_form': patient_form})
 
             user = form.save(commit=False)
             user.role = role
@@ -162,52 +202,24 @@ def register(request):
                 user.public_key = generate_public_key(aadhar, date_of_birth)
 
             user.save()
-
-            # Create associated profiles
             UserProfile.objects.create(user=user, role=role)
 
             if role == 'patient':
                 PatientProfile.objects.create(user=user, aadhar_number=aadhar, date_of_birth=date_of_birth)
 
+                # Save patient medical info
+                patient = patient_form.save(commit=False)
+                patient.user = user  # If Patient model has a ForeignKey to User
+                patient.save()
+
             messages.success(request, "Registration successful. Please log in.")
             return redirect('login')
     else:
         form = RegistrationForm()
+        patient_form = PatientForm()
+        past_Surgery_form = PastSurgeryForm()
 
-    return render(request, 'records/register.html', {'form': form})
-
-# def register(request):
-#     if request.method == 'POST':
-#         form = RegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             role = form.cleaned_data['role']
-
-#             aadhar = form.cleaned_data.get('aadhar_number')
-#             dob = form.cleaned_data.get('date_of_birth')
-
-#             if role == 'patient':
-#                 aadhar = form.cleaned_data.get('aadhar_number')
-#                 dob = form.cleaned_data.get('date_of_birth')
-
-#                 if not aadhar or not dob:
-#                     form.add_error(None, "Aadhar number and Date of Birth are required for patients.")
-#                     user.delete()  # rollback user creation
-#                     return render(request, 'records/register.html', {'form': form})
-
-#                 patient_profile = PatientProfile.objects.create(user=user, aadhar_number=aadhar, date_of_birth=dob)
-#                 public_key = generate_public_key(aadhar, dob)
-#                 user.aadhar_number = aadhar
-#                 user.dob = dob
-#                 user.public_key = public_key
-
-#             user.role = role
-#             user.save()
-#             return redirect('login')
-#     else:
-#         form = RegistrationForm()
-#     return render(request, 'records/register.html', {'form': form})
-
+    return render(request, 'records/register.html', {'form': form, 'patient_form': patient_form, 'past_Surgery_form': past_Surgery_form})
 
 
 from .models import MedicalDocument, PatientProfile
@@ -299,3 +311,18 @@ def patient_detail(request, patient_id):
         'documents': documents,
     }
     return render(request, 'doctor/patient_details.html', context)
+
+
+def patient_profile(request):
+    user = request.user
+    if user.role != 'patient':
+        return render(request, '403.html')  # Only patients allowed
+
+    patient_profile = get_object_or_404(PatientProfile, user=user)
+    documents = MedicalDocument.objects.filter(patient=patient_profile).order_by('-uploaded_at')
+
+    context = {
+        'patient_profile': patient_profile,
+        'documents': documents,
+    }
+    return render(request, 'records/profile_details.html', context)
