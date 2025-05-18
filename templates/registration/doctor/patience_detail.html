@@ -1,0 +1,18 @@
+<h2>Patient Details</h2>
+
+<p><strong>Username:</strong> {{ patient.username }}</p>
+<p><strong>Email:</strong> {{ patient.email }}</p>
+<p><strong>Full Name:</strong> {{ patient.first_name }} {{ patient.last_name }}</p>
+<p><strong>Public Key:</strong> {{ patient.public_key }}</p>
+
+<!-- If you're showing medical records -->
+<!--
+<h3>Documents:</h3>
+<ul>
+  {% for doc in documents %}
+    <li>{{ doc.title }} - Uploaded on {{ doc.uploaded_at }}</li>
+  {% endfor %}
+</ul>
+-->
+
+<a href="{% url 'doctor_search' %}">Search another patient</a>

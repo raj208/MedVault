@@ -124,7 +124,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'records.User'
+# AUTH_USER_MODEL = 'records.User'
+AUTH_USER_MODEL = 'records.CustomUser'
+LOGIN_REDIRECT_URL = '/patient/dashboard/'  # or '/doctor/dashboard/', or '/home/', whatever fits your app
 
 
 import os

@@ -1,0 +1,51 @@
+<!-- templates/doctor/patient_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        table { border-collapse: collapse; width: 80%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h2, h3 { color: #333; }
+        a { color: blue; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <h2>Patient Details</h2>
+
+    <p><strong>Name:</strong> {{ patient.username }}</p>
+    <p><strong>Date of Birth:</strong> {{ patient.patientprofile.date_of_birth }}</p>
+    <p><strong>Public Key:</strong> {{ patient.patientprofile.public_key }}</p>
+
+    <h3>Uploaded Medical Documents</h3>
+
+    {% if documents %}
+        <table>
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Uploaded At</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.file.name|slice:"25" }}</td>
+                    <td>{{ doc.uploaded_at|date:"d M Y H:i" }}</td>
+                    <td><a href="{{ doc.file.url }}" target="_blank">View PDF</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No documents uploaded yet.</p>
+    {% endif %}
+
+</body>
+</html>

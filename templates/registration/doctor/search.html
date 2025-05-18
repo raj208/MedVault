@@ -1,0 +1,9 @@
+<h2>Search Patient by Public Key</h2>
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="public_key" placeholder="Enter Patient Public Key" required />
+  <button type="submit">Search</button>
+  {% if error %}
+    <p style="color:red">{{ error }}</p>
+  {% endif %}
+</form>
