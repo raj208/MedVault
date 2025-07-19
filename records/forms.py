@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from .models import Patient, PastSurgery, Doctor
+
 
 class CustomLoginForm(forms.Form):
     username = forms.CharField()
@@ -19,22 +21,28 @@ class RegistrationForm(UserCreationForm):
     )
     role = forms.ChoiceField(choices=ROLE_CHOICES)
 
-    # Add Aadhar Number and DOB fields
-    aadhar_number = forms.CharField(required=False, label="Aadhar Number")
-    date_of_birth = forms.DateField(
-        required=False,
+    aadhar_number = forms.CharField(required=True, label="Aadhar Number")
+    dob = forms.DateField(
+        required=True,
         label="Date of Birth",
         widget=forms.DateInput(attrs={'type': 'date'})
     )
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'password1', 'password2', 'role', 'aadhar_number', 'date_of_birth')
+        fields = ('username', 'password1', 'password2', 'role', 'aadhar_number', 'dob')
 
 
-from .models import Patient, PastSurgery
 
 class PatientForm(forms.ModelForm):
+    # aadhar_number = forms.CharField(required=False, label="Aadhar Number")
+    # date_of_birth = forms.DateField(
+    #     required=False,
+    #     label="Date of Birth",
+    #     widget=forms.DateInput(attrs={'type': 'date'})
+    # )
+
+
     class Meta:
         model = Patient
         fields = [
@@ -54,4 +62,13 @@ class PastSurgeryForm(forms.ModelForm):
         fields = ['surgery_name', 'year', 'notes']
         widgets = {
             'notes': forms.Textarea(attrs={'rows': 2}),
+        }
+
+
+class DoctorForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['specialization',  'experience_years'] 
+        widgets = {
+            'specialization': forms.Textarea(attrs={'rows': 2}),
         }

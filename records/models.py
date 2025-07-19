@@ -120,3 +120,13 @@ class PastSurgery(models.Model):
 
     def __str__(self):
         return f"{self.surgery_name} ({self.year}) - {self.patient.full_name}"
+    
+class Doctor(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    specialization = models.CharField(max_length=100)
+    experience_years = models.PositiveIntegerField()
+    contact_number = models.CharField(max_length=15)
+    email = models.EmailField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Dr. {self.user.username} - {self.specialization}"

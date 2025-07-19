@@ -1,0 +1,8 @@
+<!-- users/templates/users/doctor_dashboard.html -->
+{% extends 'users/base.html' %}
+
+{% block content %}
+    <h2>Doctor Dashboard</h2>
+    <p>Welcome, Dr. {{ user.first_name }} {{ user.last_name }}!</p>
+    <!-- Add doctor-specific content here -->
+{% endblock %}

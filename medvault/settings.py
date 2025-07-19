@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'records',
+    'myapp'
+    # 'records',
 ]
 
 MIDDLEWARE = [
@@ -124,12 +125,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AUTH_USER_MODEL = 'records.User'
-AUTH_USER_MODEL = 'records.CustomUser'
-LOGIN_REDIRECT_URL = '/patient/dashboard/'  # or '/doctor/dashboard/', or '/home/', whatever fits your app
-
-
 import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'dashboard_redirect'
+LOGOUT_REDIRECT_URL = 'home' # You can create a home view later

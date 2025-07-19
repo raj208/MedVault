@@ -139,18 +139,25 @@ from .utils import generate_public_key  # assuming this exists
 from django.contrib import messages
 User = get_user_model()
 
+
+from .forms import RegistrationForm, PatientForm, PastSurgeryForm, DoctorForm
+
 # def register(request):
 #     if request.method == 'POST':
 #         form = RegistrationForm(request.POST)
-#         if form.is_valid():
+#         patient_form = PatientForm(request.POST) if request.POST.get('role') == 'patient' else None
+#         past_Surgery_form = PastSurgeryForm(request.POST) if request.POST.get('role') == 'patient' else None
+#         doctor_form = DoctorForm(request.POST) if request.POST.get('role') == 'doctor' else None
+
+#         if form.is_valid() and (not patient_form or patient_form.is_valid()):
 #             role = form.cleaned_data['role']
 #             aadhar = form.cleaned_data.get('aadhar_number')
 #             date_of_birth = form.cleaned_data.get('date_of_birth')
 
-#             # Ensure required fields for patient
+#             # Required fields check
 #             if role == 'patient' and (not aadhar or not date_of_birth):
 #                 form.add_error(None, "Aadhar number and Date of Birth are required for patients.")
-#                 return render(request, 'records/register.html', {'form': form})
+#                 return render(request, 'records/register.html', {'form': form, 'patient_form': patient_form})
 
 #             user = form.save(commit=False)
 #             user.role = role
@@ -160,66 +167,106 @@ User = get_user_model()
 #                 user.date_of_birth = date_of_birth
 #                 user.public_key = generate_public_key(aadhar, date_of_birth)
 
-#             user.save()
 
-#             # Create associated profiles
+
+#             user.save()
 #             UserProfile.objects.create(user=user, role=role)
 
 #             if role == 'patient':
 #                 PatientProfile.objects.create(user=user, aadhar_number=aadhar, date_of_birth=date_of_birth)
 
+#                 # Save patient medical info
+#                 patient = patient_form.save(commit=False)
+#                 patient.user = user  # If Patient model has a ForeignKey to User
+#                 patient.save()
+
+#             if role == 'doctor':
+#                 # Save doctor medical info
+#                 doctor = doctor_form.save(commit=False)
+#                 doctor.user = user
+
 #             messages.success(request, "Registration successful. Please log in.")
 #             return redirect('login')
 #     else:
 #         form = RegistrationForm()
+#         patient_form = PatientForm()
+#         past_Surgery_form = PastSurgeryForm()
+#         doctor_form = DoctorForm()
 
-#     return render(request, 'records/register.html', {'form': form})
+#     return render(request, 'records/register.html', {'form': form, 'patient_form': patient_form, 'past_Surgery_form': past_Surgery_form})
 
-from .forms import RegistrationForm, PatientForm, PastSurgeryForm
+
+from .forms import RegistrationForm, PatientForm, PastSurgeryForm, DoctorForm
 
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
-        patient_form = PatientForm(request.POST) if request.POST.get('role') == 'patient' else None
-        past_Surgery_form = PastSurgeryForm(request.POST) if request.POST.get('role') == 'patient' else None
+        role = request.POST.get('role')
 
-        if form.is_valid() and (not patient_form or patient_form.is_valid()):
-            role = form.cleaned_data['role']
-            aadhar = form.cleaned_data.get('aadhar_number')
-            date_of_birth = form.cleaned_data.get('date_of_birth')
+        patient_form = PatientForm(request.POST) if role == 'patient' else None
+        past_surgery_form = PastSurgeryForm(request.POST) if role == 'patient' else None
+        doctor_form = DoctorForm(request.POST) if role == 'doctor' else None
 
-            # Required fields check
-            if role == 'patient' and (not aadhar or not date_of_birth):
-                form.add_error(None, "Aadhar number and Date of Birth are required for patients.")
-                return render(request, 'records/register.html', {'form': form, 'patient_form': patient_form})
+        # Validate all relevant forms
+        forms_valid = form.is_valid()
+        if role == 'patient':
+            forms_valid = forms_valid and patient_form and patient_form.is_valid() and past_surgery_form and past_surgery_form.is_valid()
+        elif role == 'doctor':
+            forms_valid = forms_valid and doctor_form and doctor_form.is_valid()
 
+        if forms_valid:
             user = form.save(commit=False)
             user.role = role
 
             if role == 'patient':
+                aadhar = patient_form.cleaned_data.get('aadhar_number')
+                dob = patient_form.cleaned_data.get('date_of_birth')
                 user.aadhar_number = aadhar
-                user.date_of_birth = date_of_birth
-                user.public_key = generate_public_key(aadhar, date_of_birth)
+                user.date_of_birth = dob
+                user.public_key = generate_public_key(aadhar, dob)
 
             user.save()
-            UserProfile.objects.create(user=user, role=role)
+
+            # Create UserProfile
+            UserProfile.objects.create(user=user, role=role, public_key=user.public_key if role == 'patient' else None)
 
             if role == 'patient':
-                PatientProfile.objects.create(user=user, aadhar_number=aadhar, date_of_birth=date_of_birth)
-
+                # Save patient profile
+                PatientProfile.objects.create(
+                    user=user,
+                    aadhar_number=aadhar,
+                    date_of_birth=dob
+                )
                 # Save patient medical info
-                patient = patient_form.save(commit=False)
-                patient.user = user  # If Patient model has a ForeignKey to User
-                patient.save()
+                patient_instance = patient_form.save(commit=False)
+                patient_instance.user = user
+                patient_instance.save()
+
+                # Save past surgery info
+                past_surgery_instance = past_surgery_form.save(commit=False)
+                past_surgery_instance.user = user
+                past_surgery_instance.save()
+
+            if role == 'doctor':
+                doctor_instance = doctor_form.save(commit=False)
+                doctor_instance.user = user
+                doctor_instance.save()
 
             messages.success(request, "Registration successful. Please log in.")
             return redirect('login')
     else:
         form = RegistrationForm()
         patient_form = PatientForm()
-        past_Surgery_form = PastSurgeryForm()
+        past_surgery_form = PastSurgeryForm()
+        doctor_form = DoctorForm()
 
-    return render(request, 'records/register.html', {'form': form, 'patient_form': patient_form, 'past_Surgery_form': past_Surgery_form})
+    return render(request, 'records/register.html', {
+        'form': form,
+        'patient_form': patient_form,
+        'past_Surgery_form': past_surgery_form,
+        'doctor_form': doctor_form,
+    })
+
 
 
 from .models import MedicalDocument, PatientProfile
@@ -243,6 +290,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from .forms import CustomLoginForm
 from .models import UserProfile
+from .models import User
+
 
 def custom_login_view(request):
     if request.method == 'POST':

@@ -1,29 +1,37 @@
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
-  
-  <div id="patient-form" style="display:none;">
+
+  <div id="patient-section" style="display:none;">
     {{ patient_form.as_p }}
+    <!-- {{ past_Surgery_form.as_p }} -->
   </div>
 
-  <div id="past-surgeries-form" style="display:none;">
-    {{ past_Surgery_form.as_p }}
+  <div id="doctor-section" style="display:none;">
+    {{ doctor_form.as_p }}
   </div>
-  
+
   <button type="submit">Register</button>
 </form>
 
 <script>
-  const roleField = document.querySelector('[name="role"]');
-  const patientFormDiv = document.getElementById('patient-form');
-  const pastSurgeriesDiv = document.getElementById('past-surgeries-form');
+  const roleField = document.getElementById("id_role");
+  const patientSection = document.getElementById("patient-section");
+  const doctorSection = document.getElementById("doctor-section");
 
-  function togglePatientFields() {
-    const show = roleField.value === 'patient';
-    patientFormDiv.style.display = show ? 'block' : 'none';
-    pastSurgeriesDiv.style.display = show ? 'block' : 'none';
+  function toggleForms() {
+    if (roleField.value === "patient") {
+      patientSection.style.display = "block";
+      doctorSection.style.display = "none";
+    } else if (roleField.value === "doctor") {
+      patientSection.style.display = "none";
+      doctorSection.style.display = "block";
+    } else {
+      patientSection.style.display = "none";
+      doctorSection.style.display = "none";
+    }
   }
 
-  roleField.addEventListener('change', togglePatientFields);
-  window.addEventListener('load', togglePatientFields);  // Run on page load
+  roleField.addEventListener("change", toggleForms);
+  toggleForms(); // Call on load
 </script>

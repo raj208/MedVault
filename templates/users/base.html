@@ -1,0 +1,61 @@
+<!-- users/templates/users/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Portal</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        nav { display: flex; align-items: center; }
+        nav a { margin-right: 15px; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .form-container { margin-top: 20px; }
+        form p { margin-bottom: 10px; }
+
+        /* Style for the logout button to make it look like a link */
+        .logout-form {
+            display: inline;
+            margin: 0;
+            padding: 0;
+        }
+        .logout-button {
+            background: none;
+            border: none;
+            color: #007bff; /* Or your link color */
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .logout-button:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard_redirect' %}">Dashboard</a>
+            
+            <!-- ** THE FIX IS HERE ** -->
+            <!-- We replace the <a> tag with a form -->
+            <form class="logout-form" method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+            <!-- ** END OF FIX ** -->
+
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+    </nav>
+    <hr>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
