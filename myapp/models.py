@@ -1,4 +1,5 @@
 # myapp/models.py
+import uuid  # Import the built-in uuid library
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -49,6 +50,8 @@ class Patient(models.Model):
 
     # Field to store the custom, auto-generated ID
     patient_id = models.CharField(max_length=20, unique=True, blank=True)
+
+    private_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     # Patient-specific fields
     date_of_birth = models.DateField()
