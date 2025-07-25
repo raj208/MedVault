@@ -1,9 +1,16 @@
+# users/views.py
+
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from .forms import UserForm, DoctorForm, PatientForm
-from .models import UserProfile, Doctor, Patient
+from .models import User, Doctor, Patient # We no longer import UserProfile
+
+
+def home(request):
+    return render(request, 'users/home.html')
+
 
 def register(request):
     """
@@ -25,13 +32,10 @@ def doctor_register(request):
             user.set_password(user.password)
             user.save()
             
-            # Create the UserProfile with is_doctor set to True
-            user_profile = UserProfile.objects.create(user=user, is_doctor=True)
-            
-            # Create the Doctor profile
+            # Create the Doctor profile, linking it directly to the user
             doctor = doctor_form.save(commit=False)
-            doctor.user_profile = user_profile
-            doctor.save()
+            doctor.user = user
+            doctor.save() # The custom ID is generated here by the model's save() method
             
             # Log the user in and redirect to their dashboard
             login(request, user)
@@ -59,13 +63,10 @@ def patient_register(request):
             user.set_password(user.password)
             user.save()
 
-            # Create the UserProfile with is_patient set to True
-            user_profile = UserProfile.objects.create(user=user, is_patient=True)
-
-            # Create the Patient profile
+            # Create the Patient profile, linking it directly to the user
             patient = patient_form.save(commit=False)
-            patient.user_profile = user_profile
-            patient.save()
+            patient.user = user
+            patient.save() # The custom ID is generated here by the model's save() method
             
             # Log the user in and redirect to their dashboard
             login(request, user)
@@ -83,27 +84,22 @@ def patient_register(request):
 def dashboard_redirect(request):
     """
     Redirects user to their specific dashboard based on their role.
+    We use hasattr() to check if a related doctor or patient object exists.
     """
-    if request.user.profile.is_doctor:
+    if hasattr(request.user, 'doctor'):
         return redirect('doctor_dashboard')
-    elif request.user.profile.is_patient:
+    elif hasattr(request.user, 'patient'):
         return redirect('patient_dashboard')
     else:
-        # Handle cases for other users or redirect to a default page
-        return redirect('home') # You should create a homepage view
+        # Handle cases for other users (like superuser) or redirect to a default page
+        return redirect('home')
 
 @login_required
 def doctor_dashboard(request):
-    # Add logic for the doctor's dashboard
     return render(request, 'users/doctor_dashboard.html')
 
 @login_required
 def patient_dashboard(request):
-    # Add logic for the patient's dashboard
     return render(request, 'users/patient_dashboard.html')
 
-def home(request):
-    """
-    A simple homepage.
-    """
-    return render(request, 'users/home.html')
+

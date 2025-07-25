@@ -4,5 +4,10 @@
 {% block content %}
     <h2>Doctor Dashboard</h2>
     <p>Welcome, Dr. {{ user.first_name }} {{ user.last_name }}!</p>
-    <!-- Add doctor-specific content here -->
+    <ul>
+        <!-- --- CHANGE: ADD THIS LINE --- -->
+        <!-- This tells the template to find the patient's ID and show it. -->
+        <li><strong>Doctor ID:</strong> {{ user.doctor.doctor_id }}</li>
+        
+    </ul>
 {% endblock %}

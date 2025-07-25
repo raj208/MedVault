@@ -5,4 +5,13 @@
     <h2>Patient Dashboard</h2>
     <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
     <!-- Add patient-specific content here -->
+    <ul>
+        <!-- --- CHANGE: ADD THIS LINE --- -->
+        <!-- This tells the template to find the patient's ID and show it. -->
+        <li><strong>Patient ID:</strong> {{ user.patient.patient_id }}</li>
+        
+        <li><strong>Full Name:</strong> {{ user.get_full_name }}</li>
+        <li><strong>Date of Birth:</strong> {{ user.patient.date_of_birth }}</li>
+        <li><strong>Email:</strong> {{ user.email }}</li>
+    </ul>
 {% endblock %}
