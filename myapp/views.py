@@ -8,6 +8,9 @@ from .forms import UserForm, DoctorForm, PatientForm, UserUpdateForm, DoctorProf
 from .models import User, Doctor, Patient # We no longer import UserProfile
 from django.contrib import messages # Import the messages framework
 
+from django.contrib.auth import authenticate, login
+from django.db import transaction, IntegrityError
+
 
 def home(request):
     return render(request, 'users/home.html')
@@ -19,36 +22,65 @@ def register(request):
     """
     return render(request, 'users/register.html')
 
+
 @transaction.atomic
 def doctor_register(request):
     """
     Handles the registration process for a Doctor.
+    - Creates the auth User (with a hashed password)
+    - Creates the Doctor profile linked to that User
+    - Logs the user in and redirects
     """
     if request.method == 'POST':
-        user_form = UserForm(request.POST)
+        user_form = UserForm(request.POST)     # use UserCreationForm or a custom form
         doctor_form = DoctorForm(request.POST)
+
         if user_form.is_valid() and doctor_form.is_valid():
-            # Create the base user
-            user = user_form.save()
-            user.set_password(user.password)
+            # ---- Create User without ever committing a plaintext password ----
+            # If you're using Django's UserCreationForm, you can just do:
+            #   user = user_form.save()
+            # and skip the set_password/authenticate bits below.
+            user = user_form.save(commit=False)
+            raw_pwd = (
+                user_form.cleaned_data.get('password1') or  # UserCreationForm
+                user_form.cleaned_data.get('password')       # simple ModelForm
+            )
+            user.set_password(raw_pwd)
             user.save()
-            
-            # Create the Doctor profile, linking it directly to the user
+
+            # ---- Create Doctor (DoctorForm.save(commit=False) already set lists) ----
             doctor = doctor_form.save(commit=False)
             doctor.user = user
-            doctor.save() # The custom ID is generated here by the model's save() method
-            
-            # Log the user in and redirect to their dashboard
-            login(request, user)
-            return redirect('doctor_dashboard')
+            try:
+                doctor.save()
+            except IntegrityError as e:
+                # Likely unique constraint (e.g., license_number). Roll back user.
+                user.delete()
+                doctor_form.add_error('license_number', 'This license number is already registered.')
+            else:
+                # (Optional) enqueue FAISS reindex task if you wired it:
+                # enqueue_doctor_index_update(doctor.user_id)
+
+                # ---- Authenticate & login ----
+                auth_user = authenticate(request, username=user.username, password=raw_pwd)
+                if auth_user is not None:
+                    login(request, auth_user)
+                else:
+                    messages.warning(request, "Account created, please log in.")
+
+                messages.success(request, "Registration successful.")
+                return redirect('doctor_dashboard')
+        # if invalid, fall through to render with errors
     else:
         user_form = UserForm()
         doctor_form = DoctorForm()
-    
-    return render(request, 'users/doctor_register.html', {
-        'user_form': user_form,
-        'doctor_form': doctor_form
-    })
+
+    return render(
+        request,
+        'users/doctor_register.html',
+        {'user_form': user_form, 'doctor_form': doctor_form}
+    )
+
 
 @transaction.atomic
 def patient_register(request):
