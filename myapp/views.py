@@ -4,8 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .forms import UserForm, DoctorForm, PatientForm
+from .forms import UserForm, DoctorForm, PatientForm, UserUpdateForm, DoctorProfileUpdateForm, PatientProfileUpdateForm
 from .models import User, Doctor, Patient # We no longer import UserProfile
+from django.contrib import messages # Import the messages framework
 
 
 def home(request):
@@ -103,3 +104,43 @@ def patient_dashboard(request):
     return render(request, 'users/patient_dashboard.html')
 
 
+
+@login_required
+def update_profile(request):
+    profile_form = None # Initialize profile_form to None
+    
+    if request.method == 'POST':
+        # Instantiate the form with the POST data and the user's current instance
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+
+        # Check if the user is a doctor or patient to use the correct profile form
+        if hasattr(request.user, 'doctor'):
+            profile_form = DoctorProfileUpdateForm(request.POST, instance=request.user.doctor)
+        elif hasattr(request.user, 'patient'):
+            profile_form = PatientProfileUpdateForm(request.POST, instance=request.user.patient)
+
+        # Check if both forms are valid
+        if user_form.is_valid() and (profile_form is None or profile_form.is_valid()):
+            user_form.save()
+            if profile_form:
+                profile_form.save()
+            
+            # Add a success message
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('dashboard_redirect')
+
+    else:
+        # If it's a GET request, pre-fill the form with the user's current data
+        user_form = UserUpdateForm(instance=request.user)
+        
+        if hasattr(request.user, 'doctor'):
+            profile_form = DoctorProfileUpdateForm(instance=request.user.doctor)
+        elif hasattr(request.user, 'patient'):
+            profile_form = PatientProfileUpdateForm(instance=request.user.patient)
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form
+    }
+    
+    return render(request, 'users/update_profile.html', context)

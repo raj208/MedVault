@@ -3,9 +3,17 @@ import uuid  # Import the built-in uuid library
 
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import date
 
 # NOTE: The UserProfile model has been removed.
 # We now link Doctor and Patient directly to Django's built-in User model.
+
+# class Specialization(models.Model):
+#     name = models.CharField(max_length=100, unique=True)
+
+#     def __str__(self):
+#         return self.name
+
 
 class Doctor(models.Model):
     # Direct link to the User model
@@ -15,7 +23,8 @@ class Doctor(models.Model):
     doctor_id = models.CharField(max_length=20, unique=True, blank=True)
     
     # Doctor-specific fields
-    specialization = models.CharField(max_length=100)
+    # specialization = models.ManyToManyField(Specialization, blank=True)
+    specialization = models.TextField(blank=True, null= True)
     license_number = models.CharField(max_length=50, unique=True)
     
     def __str__(self):
@@ -44,6 +53,14 @@ class Doctor(models.Model):
         super().save(*args, **kwargs)
 
 
+class Allergy(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    severity = models.CharField(max_length=50, choices=[('low', 'Low'), ('moderate', 'Moderate'), ('high', 'High')], blank=True)
+
+    def __str__(self):
+        return self.name
+
 class Patient(models.Model):
     # Direct link to the User model
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='patient')
@@ -54,8 +71,30 @@ class Patient(models.Model):
     private_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     # Patient-specific fields
-    date_of_birth = models.DateField()
+    @property
+    def age(self):
+        if self.birth_date is None:
+            return None
+        today = date.today()
+        return today.year - self.birth_date.year - (
+            (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
+        )
+    
+    date_of_birth = models.DateField(null=True, blank=True)
+
     medical_history = models.TextField(blank=True, null=True)
+
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
+    # age = models.CharField(max_length=3, blank=False, null= False)          <p>Age: {{ patient.age }}</p> 
+    blood_group = models.TextField(blank=False, null=False)
+    allergies = models.ManyToManyField(Allergy, blank=True)
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+        ('N', 'Prefer not to say'),
+    ]
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
     def __str__(self):
         # Access the user's name directly via the 'user' field

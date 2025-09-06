@@ -27,3 +27,30 @@ class PatientForm(forms.ModelForm):
         model = Patient
         # Note: We do NOT include the 'user' or 'patient_id' fields here.
         fields = ('date_of_birth', 'medical_history')
+
+class UserUpdateForm(forms.ModelForm):
+    # We don't want users to change their email this way, but you can add it if you want
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+
+
+class DoctorProfileUpdateForm(forms.ModelForm):
+    # specializations = forms.ModelMultipleChoiceField(
+    #     queryset=Specialization.objects.all(),
+    #     widget=forms.CheckboxSelectMultiple,
+    #     required=False,
+    # )
+    class Meta:
+        model = Doctor
+        # Users can update these fields
+        fields = ['specialization']
+        # widgets = {
+        #     'specializations': forms.CheckboxSelectMultiple,  # or SelectMultiple
+        # }
+
+class PatientProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Patient
+        # Users can update these fields
+        fields = ['date_of_birth', 'medical_history', 'contact_number', 'blood_group', 'gender', 'allergies']

@@ -8,7 +8,8 @@
     <ul>
         <!-- --- CHANGE: ADD THIS LINE --- -->
         <!-- This tells the template to find the patient's ID and show it. -->
-        <li><strong>Patient ID:</strong> {{ user.patient.patient_id }}</li>
+        <li><strong>Patient Public ID:</strong> {{ user.patient.patient_id }}</li>
+        <li><strong>Patient Private ID:</strong> {{ user.patient.private_id }}</li>
         
         <li><strong>Full Name:</strong> {{ user.get_full_name }}</li>
         <li><strong>Date of Birth:</strong> {{ user.patient.date_of_birth }}</li>

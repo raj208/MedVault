@@ -1,0 +1,20 @@
+<!-- myapp/templates/myapp/update_profile.html -->
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+    <h2>Update Your Profile</h2>
+    <form method="post" class="form-container">
+        {% csrf_token %}
+        
+        <h3>Basic Information</h3>
+        {{ user_form.as_p }}
+        
+        {% if profile_form %}
+            <hr>
+            <h3>Profile Details</h3>
+            {{ profile_form.as_p }}
+        {% endif %}
+        
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}
