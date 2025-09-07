@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
-    'django.contrib.postgres'
+    'django.contrib.postgres',
+    'search'
     # 'records',
 ]
 
@@ -77,6 +78,8 @@ WSGI_APPLICATION = 'medvault.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+########## LOCAL DATABASE SQLLITE3 ###########
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
@@ -84,13 +87,28 @@ WSGI_APPLICATION = 'medvault.wsgi.application'
 #     }
 # }
 
+####### LOCAL DATABASE POSTGRES ##########
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "medvault_db",
+#         "USER": "postgres",
+#         "PASSWORD": "kuki123",
+#         "HOST": "127.0.0.1",
+#         "PORT": "5432",
+#     }
+# }
+
+########## REMOTE DATABASE   ############
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "medvault_db",
-        "USER": "postgres",
+        "NAME": "mydb",
+        "USER": "kuki",
         "PASSWORD": "kuki123",
-        "HOST": "127.0.0.1",
+        "HOST": "172.16.246.147",
         "PORT": "5432",
     }
 }
@@ -145,3 +163,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_REDIRECT_URL = 'dashboard_redirect'
 LOGOUT_REDIRECT_URL = 'home' # You can create a home view later
+
+EMBED_MODEL = "pritamdeka/S-BioBERT-MiniLM-L6-v2"
+FAISS_DIR = BASE_DIR / "var" / "faiss"
+TIME_ZONE = "Asia/Kolkata"
