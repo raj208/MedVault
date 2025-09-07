@@ -1,0 +1,48 @@
+specialties:
+  Internal Medicine:
+    - Cardiology
+    - Endocrinology
+    - Gastroenterology
+    - Nephrology
+    - Pulmonology
+    - Rheumatology
+
+  Cardiology:
+    - Interventional Cardiology
+    - Electrophysiology
+    - Heart Failure
+
+  Surgery:
+    - General Surgery
+    - Orthopedics
+    - Neurosurgery
+    - Cardiothoracic Surgery
+
+  Pediatrics:
+    - Neonatology
+    - Pediatric Cardiology
+
+  Obstetrics & Gynecology:
+    - Maternal-Fetal Medicine
+    - Gynecologic Oncology
+
+synonyms:
+  heart: [Cardiology]
+  cardiac: [Cardiology]
+  rhythm: [Electrophysiology]
+  arrhythmia: [Electrophysiology]
+  angioplasty: [Interventional Cardiology]
+  stent: [Interventional Cardiology]
+  diabetes: [Endocrinology]
+  thyroid: [Endocrinology]
+  kidney: [Nephrology]
+  renal: [Nephrology]
+  lung: [Pulmonology]
+  asthma: [Pulmonology]
+  liver: [Gastroenterology]
+  stomach: [Gastroenterology]
+  bone: [Orthopedics]
+  joint: [Orthopedics]
+  pregnancy: [Obstetrics & Gynecology]
+  neonatal: [Neonatology]
+  child: [Pediatrics]

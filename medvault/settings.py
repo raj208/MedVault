@@ -169,4 +169,7 @@ LOGOUT_REDIRECT_URL = 'home' # You can create a home view later
 EMBED_MODEL = "pritamdeka/S-BioBERT-MiniLM-L6-v2"
 FAISS_DIR = BASE_DIR / "var" / "faiss"
 TIME_ZONE = "Asia/Kolkata"
-DOCTOR_MODEL = "myapp.Doctor"
+
+SPECIALTY_ONTOLOGY_PATH = BASE_DIR / "config" / "specialty_ontology.yml"
+DOCTOR_MODEL = "myapp.Doctor"   # <-- use your actual app label & model
+
