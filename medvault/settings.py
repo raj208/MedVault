@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'django.contrib.postgres',
-    'search'
+    'search',
+    'django_extensions'
     # 'records',
 ]
 
@@ -111,7 +112,7 @@ DATABASES = {
         "HOST": "172.16.246.147",
         "PORT": "5432",
     }
-    
+
 }
 
 
@@ -168,3 +169,4 @@ LOGOUT_REDIRECT_URL = 'home' # You can create a home view later
 EMBED_MODEL = "pritamdeka/S-BioBERT-MiniLM-L6-v2"
 FAISS_DIR = BASE_DIR / "var" / "faiss"
 TIME_ZONE = "Asia/Kolkata"
+DOCTOR_MODEL = "myapp.Doctor"
