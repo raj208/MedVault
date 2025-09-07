@@ -173,3 +173,11 @@ TIME_ZONE = "Asia/Kolkata"
 SPECIALTY_ONTOLOGY_PATH = BASE_DIR / "config" / "specialty_ontology.yml"
 DOCTOR_MODEL = "myapp.Doctor"   # <-- use your actual app label & model
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [],  # disable session auth in dev
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+}
+# If you’re calling from a different origin (e.g., localhost:3000)
+INSTALLED_APPS += ["corsheaders"]
+MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware", *MIDDLEWARE]
+CORS_ALLOW_ALL_ORIGINS = True  # dev only
